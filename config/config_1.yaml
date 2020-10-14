@@ -1,0 +1,6 @@
+'model_name': 'jplu/tf-xlm-roberta-large'
+'translation': False
+'max_length': 84
+'batch_size': 64
+'epochs': 16
+'train_splits': 4
