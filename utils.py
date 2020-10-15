@@ -11,8 +11,9 @@ def encode_text(df, tokenizer, max_len, padding):
 
     text_encoded = tokenizer.batch_encode_plus(
         text,
-        pad_to_max_length = padding,
-        max_length = max_len
+        padding = padding,
+        max_length = max_len,
+        truncation = True
     )
 
     return text_encoded

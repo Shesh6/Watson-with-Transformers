@@ -1,0 +1,4 @@
+models/
+__pycache__/
+.vscode/
+bfg-1.13.0.jar

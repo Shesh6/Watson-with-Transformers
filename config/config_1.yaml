@@ -1,6 +1,7 @@
-'model_name': 'jplu/tf-xlm-roberta-large'
+'model_name': 'distilbert-base-multilingual-cased'
 'translation': False
-'max_length': 84
-'batch_size': 64
-'epochs': 16
-'train_splits': 4
+'max_length': 32
+'batch_size': 32
+'epochs': 1
+'train_splits': 2
+'accelerator': 'GPU'

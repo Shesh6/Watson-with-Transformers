@@ -1,10 +1,12 @@
 import tensorflow as tf
 import pandas as pd
+import numpy as np
 import wandb
 import gc
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import StratifiedKFold
 from utils import translate_text, encode_text, to_tfds
+from classifier import build_classifier
 
 def train_model(config, is_wandb = False):
 
@@ -15,9 +17,9 @@ def train_model(config, is_wandb = False):
     if is_wandb:    
         wb = wandb.keras.WandbCallback()
     
-    # translating non-English text to English
+    print("translating data")
     if config.TRANSLATION:
-        df_train.loc[df_train.language != "En glish", "premise"] = df_train[df_train.language != "English"].premise.apply(lambda x: translate_text(x))
+        df_train.loc[df_train.language != "English", "premise"] = df_train[df_train.language != "English"].premise.apply(lambda x: translate_text(x))
         df_test.loc[df_test.language != "English", "premise"] = df_test[df_test.language != "English"].premise.apply(lambda x: translate_text(x))
 
         df_train.loc[df_train.language != "English", "hypothesis"] = df_train[df_train.language != "English"].hypothesis.apply(lambda x: translate_text(x))
@@ -42,9 +44,9 @@ def train_model(config, is_wandb = False):
                 config.initialize_accelerator()
 
         print("building model")
-        tensorflow.keras.backend.clear_session()
+        tf.keras.backend.clear_session()
         with config.strategy.scope():
-            model = build_model(config.MODEL_NAME, config.MAX_LENGTH, config.LEARNING_RATE, config.METRICS)
+            model = build_classifier(config.MODEL_NAME, config.MAX_LENGTH, config.LEARNING_RATE, config.METRICS)
             if fold == 0:
                 print(model.summary())
 

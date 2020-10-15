@@ -24,8 +24,8 @@ class Config():
         self.ACCELERATOR = accelerator
 
         # paths
-        self.PATH_TRAIN = Path("/data/train.csv")
-        self.PATH_TEST  = Path("/data/test.csv")
+        self.PATH_TRAIN = Path("data/train.csv")
+        self.PATH_TEST  = Path("data/test.csv")
 
         # splits
         self.TRAIN_SPLITS = train_splits
