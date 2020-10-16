@@ -1,8 +1,28 @@
 import tensorflow as tf
 from pathlib import Path
 from transformers import AutoTokenizer
-
+ 
 class Config():
+    """
+    Class for holding the configuration of a run, and setting up the accelerator strategy.
+    Arguments:
+    - model_name: Title of model from the HuggingFace directory of transformers.
+    - translation: Boolean determining whether non-English data should be translated using
+                   the Google Translate library. Used for transformers that were trained
+                   exclusively on English data.
+    - max_length: Maximum ength of sequences processed by the transformer. The longer, the
+                  more long-term information can be learned, but takes up more memory.
+    - padding: Bollean determining whether tokenizer should pad sequences to max_length.
+    - batch_size
+    - epochs
+    - learning_rate
+    - metrics: metrics to be logged.
+    - verbose
+    - train_splits: how many folds to perform stratified cross-validation with.
+    - accelerator: 'TPU' or 'GPU'
+    - random_seed
+    """
+
 
     def __init__(
         self,
@@ -17,20 +37,31 @@ class Config():
         verbose = 1,
         train_splits = 5,
         accelerator = "TPU",
-        seed = 13
+        random_seed = 6
     ):
-        # seed and accelerator
-        self.SEED = seed
-        self.ACCELERATOR = accelerator
 
-        # paths
+        # Set up
+        self.SEED = random_seed
+        self.ACCELERATOR = accelerator
         self.PATH_TRAIN = Path("data/train.csv")
         self.PATH_TEST  = Path("data/test.csv")
-
-        # splits
         self.TRAIN_SPLITS = train_splits
 
-        # mapping of language
+        # Model configuration
+        self.MODEL_NAME = model_name
+        self.TRANSLATION = translation
+        self.TOKENIZER = AutoTokenizer.from_pretrained(self.MODEL_NAME)
+
+        # Model hyperparameters
+        self.MAX_LENGTH = max_length
+        self.PAD_TO_MAX_LENGTH = padding
+        self.BATCH_SIZE = batch_size
+        self.EPOCHS = epochs
+        self.LEARNING_RATE = learning_rate
+        self.METRICS = metrics
+        self.VERBOSE = verbose
+
+        # Language maps
         self.LANGUAGE_MAP = {
             "English"   : 0,
             "Chinese"   : 1,
@@ -48,31 +79,16 @@ class Config():
             "Turkish"   : 13,
             "Bulgarian" : 14
         }
-
         self.INVERSE_LANGUAGE_MAP = {v: k for k, v in self.LANGUAGE_MAP.items()}
-
-        # model configuration
-        self.MODEL_NAME = model_name
-        self.TRANSLATION = translation
-        self.TOKENIZER = AutoTokenizer.from_pretrained(self.MODEL_NAME)
-
-        # model hyperparameters
-        self.MAX_LENGTH = max_length
-        self.PAD_TO_MAX_LENGTH = padding
-        self.BATCH_SIZE = batch_size
-        self.EPOCHS = epochs
-        self.LEARNING_RATE = learning_rate
-        self.METRICS = metrics
-        self.VERBOSE = verbose
         
-        # initializing accelerator
+        # Initializing accelerator
         self.initialize_accelerator()
 
     def initialize_accelerator(self):
         """
-        Initializing accelerator
+        Method for initializing accelerator strategy (TPU or GPU)
         """
-        # checking TPU first
+        # Checking TPU first
         if self.ACCELERATOR == "TPU":
             print("Connecting to TPU")
             try:
@@ -96,16 +112,16 @@ class Config():
                 print("Unable to initialize TPU")
                 self.ACCELERATOR = "GPU"
 
-        # default for CPU and GPU
-        if self.ACCELERATOR != "TPU":
+        # Default for CPU and GPU otherwise
+        else:
             print("Using default strategy for CPU and single GPU")
             self.strategy = tf.distribute.get_strategy()
 
-        # checking GPUs
+        # Checking GPUs
         if self.ACCELERATOR == "GPU":
             print(f"GPUs Available: {len(tf.config.experimental.list_physical_devices('GPU'))}")
 
-        # defining replicas
+        # Defining replicas
         self.AUTO = tf.data.experimental.AUTOTUNE
         self.REPLICAS = self.strategy.num_replicas_in_sync
         print(f"REPLICAS: {self.REPLICAS}")
