@@ -1,7 +1,7 @@
-'model_name': 'jplu/xlm-roberta-large-xnli'
+'model_name': joeddav/xlm-roberta-large-xnli
 'translation': False
-'max_length': 84
+'max_length': 128
 'batch_size': 64
-'epochs': 16
+'epochs': 20
 'train_splits': 4
 'accelerator': 'TPU'

@@ -30,13 +30,13 @@ def wandb_run():
     print("Training Model")
     train_model(config_obj, is_wandb=True)
 
-def run_sweep(config_yaml, entity, project):
+def run_sweep(config_yaml):
     """
     Set up and run Weights and Biases hyperparameter sweep from config file.
-    """"
+    """
     
     print("Setting sweep")
-    sweep_id = wandb.sweep(yaml.load(config_yaml), entity=entity, project=project)
+    sweep_id = wandb.sweep(yaml.load(config_yaml))
 
     print("Setting agent")
     wandb.agent(sweep_id, wandb_run)
